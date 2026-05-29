@@ -1,8 +1,8 @@
 import { Request, Response } from 'express';
-import { generateTicketAndQR } from '../service/qr.service';
-import { validateTicketScan } from '../service/validation.service';
-import { Ticket } from '../model/ticket.model';
-import { revokeTicket } from '../service/validation.service';
+import { generateTicketAndQR } from '../service/qr.service.js';
+import { validateTicketScan } from '../service/validation.service.js';
+import { Ticket } from '../model/ticket.model.js';
+import { revokeTicket } from '../service/validation.service.js';
 import { getAttendanceStats } from '../service/attendance.service.js';
 export const generateTicket = async (req: Request, res: Response): Promise<any> => {
   try {
