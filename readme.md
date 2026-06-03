@@ -47,7 +47,6 @@ Create a .env file in your root directory:
 PORT=5001
 MONGO_URI=your_db_connection_string
 JWT_SECRET=your_secret_key
-FRONTEND_URL=http://localhost:3000
 SEED_ADMIN_EMAIL=admin@tedx.com
 SEED_ADMIN_PASSWORD=your_password
 SEED_VOLUNTEER_EMAILS=gate1@tedx.com,gate2@tedx.com
@@ -72,10 +71,10 @@ npm run dev
 
 ### Authentication (Public)
 
-| Endpoint | Method | Description |
+| Endpoint | Method | Payload |
 | --- | --- | --- |
-| /api/auth/login | POST | Authenticates and sets secure cookie |
-| /api/auth/logout | POST | Destroys session |
+| /api/auth/login | POST | {"email": "..","password": "..."} |
+| /api/auth/logout | POST | {"email": "..","password": "..."} |
 
 ### QR & Ticket Management (Admin Only)
 
