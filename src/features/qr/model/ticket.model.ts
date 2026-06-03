@@ -5,6 +5,7 @@ export interface ITicket extends Document {
   userId: string; 
   session: "SESSION_1" | "SESSION_2";
   qrToken: string;
+  
   status: "ACTIVE" | "REVOKED" | "USED";
   isCheckedIn: boolean;
   checkedInAt?: Date;

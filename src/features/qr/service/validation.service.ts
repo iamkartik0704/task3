@@ -1,8 +1,8 @@
 import jwt from 'jsonwebtoken';
-import { Ticket } from '../model/ticket.model';
-import { Attendance } from '../model/attendance.model';
+import { Ticket } from '../model/ticket.model.js';
+import { Attendance } from '../model/attendance.model.js';
 
-export const validateTicketScan = async (qrToken: string, scannedBy: string) => {
+export const validateTicketScan = async (qrToken: string, scannedBy: string, currentScanningSession: string) => {
   const secret = process.env.JWT_SECRET;
   if (!secret) throw new Error("JWT_SECRET is missing");
 
@@ -31,7 +31,17 @@ export const validateTicketScan = async (qrToken: string, scannedBy: string) => 
     return { success: false, status: "FAILED_REVOKED", message: "This ticket has been revoked." };
   }
 
- 
+  
+  if (ticket.session !== currentScanningSession) {
+    await logAttendance(ticketId, ticket.session, scannedBy, "FAILED_WRONG_SESSION");
+    return { 
+      success: false, 
+      status: "FAILED_WRONG_SESSION", 
+      message: `Access Denied: This ticket is for ${ticket.session}, not ${currentScanningSession}.` 
+    };
+  }
+
+
   const updatedTicket = await Ticket.findOneAndUpdate(
     { ticketId: ticketId, isCheckedIn: false },
     { 
@@ -45,12 +55,12 @@ export const validateTicketScan = async (qrToken: string, scannedBy: string) => 
   );
 
   if (!updatedTicket) {
-    // If we didn't get a ticket back, it means someone already scanned it!
+    
     await logAttendance(ticketId, session, scannedBy, "FAILED_DUPLICATE");
     return { success: false, status: "FAILED_DUPLICATE", message: "Ticket already used!" };
   }
 
-// valid entry
+  // valid entry
   await logAttendance(ticketId, session, scannedBy, "SUCCESS");
   return { success: true, status: "SUCCESS", message: "Access Granted!", ticket: updatedTicket };
 };
@@ -60,7 +70,7 @@ const logAttendance = async (
   ticketId: string, 
   session: string, 
   scannedBy: string, 
-  status: "SUCCESS" | "FAILED_DUPLICATE" | "FAILED_REVOKED" | "FAILED_INVALID"
+  status: "SUCCESS" | "FAILED_DUPLICATE" | "FAILED_REVOKED" | "FAILED_INVALID" | "FAILED_WRONG_SESSION"
 ) => {
   await Attendance.create({
     ticketId,
@@ -68,7 +78,6 @@ const logAttendance = async (
     scannedBy,
     validationStatus: status
   });
-
 };
 
 export const revokeTicket = async (ticketId: string) => {

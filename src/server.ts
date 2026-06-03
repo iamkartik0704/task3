@@ -2,7 +2,12 @@ import express, { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
 import cors from 'cors';
-import qrRoutes from './features/qr/routes/qr.routes';
+import cookieParser from 'cookie-parser';
+import rateLimit from 'express-rate-limit';
+
+// Route & Controller Imports
+import qrRoutes from './features/qr/routes/qr.routes.js';
+import { loginAdmin, logoutAdmin } from './features/qr/controller/auth.controller.js';
 
 // Load env
 dotenv.config();
@@ -10,11 +15,23 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 5001;
 
-// Middleware
-app.use(cors());
-app.use(express.json());
 
-// db Connection
+app.use(cors({
+  origin: process.env.FRONTEND_URL || 'http://localhost:3000', // Update with your actual frontend URL
+  credentials: true, // CRITICAL: This allows the HttpOnly cookie to be sent to the frontend
+}));
+app.use(express.json());
+app.use(cookieParser());
+
+// Rate Limiter
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // Limit each IP to 100 requests per window
+  message: { error: "Too many requests, please try again later." }
+});
+app.use('/api/', apiLimiter);
+
+
 const connectDB = async () => {
   try {
     const mongoUri = process.env.MONGO_URI;
@@ -29,20 +46,22 @@ const connectDB = async () => {
     process.exit(1);
   }
 };
-// Middleware
-app.use(cors());
-app.use(express.json());
 
-// Route
+
+
+// Auth Routes (Public)
+app.post('/api/auth/login', loginAdmin);
+app.post('/api/auth/logout', logoutAdmin);
+
+// QR Routes 
 app.use('/api/qr', qrRoutes);
 
 
-// Basic Health Check Route
 app.get('/health', (req: Request, res: Response) => {
   res.status(200).json({ status: 'QR service is running perfectly' });
 });
 
-// Start the Server
+
 app.listen(PORT, async () => {
   await connectDB();
   console.log(`QR Scanner service running on http://localhost:${PORT}`);

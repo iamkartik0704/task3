@@ -5,7 +5,7 @@ export interface IAttendance extends Document {
   session: string;
   scannedAt: Date;
   scannedBy: string; //  ID of the volunteer/admin who scanned it
-  validationStatus: "SUCCESS" | "FAILED_DUPLICATE" | "FAILED_REVOKED" | "FAILED_INVALID";
+  validationStatus: "SUCCESS" | "FAILED_DUPLICATE" | "FAILED_REVOKED" | "FAILED_INVALID" | "FAILED_WRONG_SESSION";
 }
 
 const attendanceSchema = new Schema<IAttendance>({
@@ -15,7 +15,7 @@ const attendanceSchema = new Schema<IAttendance>({
   scannedBy: { type: String, required: true },
   validationStatus: { 
     type: String, 
-    enum: ["SUCCESS", "FAILED_DUPLICATE", "FAILED_REVOKED", "FAILED_INVALID"], 
+    enum: ["SUCCESS", "FAILED_DUPLICATE", "FAILED_REVOKED", "FAILED_INVALID", "FAILED_WRONG_SESSION"], 
     required: true 
   }
 });
