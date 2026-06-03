@@ -4,7 +4,7 @@ import dotenv from 'dotenv';
 import cors from 'cors';
 import qrRoutes from './features/qr/routes/qr.routes';
 
-// Load environment variables
+// Load env
 dotenv.config();
 
 const app = express();
@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 5001;
 app.use(cors());
 app.use(express.json());
 
-// Database Connection
+// db Connection
 const connectDB = async () => {
   try {
     const mongoUri = process.env.MONGO_URI;
@@ -23,9 +23,9 @@ const connectDB = async () => {
     }
     
     await mongoose.connect(mongoUri);
-    console.log('📦 Connected to MongoDB Atlas');
+    console.log('Connected to MongoDB');
   } catch (error) {
-    console.error('❌ MongoDB connection error:', error);
+    console.error('MongoDB connection error:', error);
     process.exit(1);
   }
 };
@@ -33,17 +33,17 @@ const connectDB = async () => {
 app.use(cors());
 app.use(express.json());
 
-// Routes 👇 Add this line
+// Route
 app.use('/api/qr', qrRoutes);
 
 
 // Basic Health Check Route
 app.get('/health', (req: Request, res: Response) => {
-  res.status(200).json({ status: 'QR Microservice is running perfectly!' });
+  res.status(200).json({ status: 'QR service is running perfectly' });
 });
 
 // Start the Server
 app.listen(PORT, async () => {
   await connectDB();
-  console.log(`🚀 QR Scanner Microservice running on http://localhost:${PORT}`);
+  console.log(`QR Scanner service running on http://localhost:${PORT}`);
 });

@@ -8,7 +8,7 @@ export const generateTicket = async (req: Request, res: Response): Promise<any> 
   try {
     const { userId, session } = req.body;
 
-    // 1. Basic Validation
+    // basic Validation
     if (!userId || !session) {
       return res.status(400).json({ error: "userId and session are required" });
     }
@@ -18,10 +18,9 @@ export const generateTicket = async (req: Request, res: Response): Promise<any> 
     }
     const validSession = session as "SESSION_1" | "SESSION_2";
 
-    // 2. Call the Service
+
     const ticketData = await generateTicketAndQR(userId, validSession);
 
-    // 3. Return the Success Response
     return res.status(201).json({
       success: true,
       message: "Secure ticket generated successfully",
@@ -42,13 +41,13 @@ export const validateScan = async (req: Request, res: Response): Promise<any> =>
       return res.status(400).json({ error: "qrToken and scannedBy are required" });
     }
 
-    // Call our new validation service
+
     const result = await validateTicketScan(qrToken, scannedBy);
 
     if (result.success) {
       return res.status(200).json(result);
     } else {
-      // Return a 403 Forbidden for bad scans
+     
       return res.status(403).json(result);
     }
 
@@ -63,7 +62,7 @@ export const validateScan = async (req: Request, res: Response): Promise<any> =>
 
 export const getStats = async (req: Request, res: Response): Promise<any> => {
   try {
-    // Call the service function
+    //service function
     const stats = await getAttendanceStats();
     
     return res.status(200).json({ 

@@ -8,7 +8,7 @@ export const validateTicketScan = async (qrToken: string, scannedBy: string) => 
 
   let payload: any;
 
-  // 1. Verify the JWT Signature (Protects against forged/fake QR codes)
+  // verify using JWT 
   try {
     payload = jwt.verify(qrToken, secret);
   } catch (error) {
@@ -18,7 +18,7 @@ export const validateTicketScan = async (qrToken: string, scannedBy: string) => 
 
   const { ticketId, session } = payload;
 
-  // 2. Find the exact ticket in the database
+  // find the exact ticket in the db
   const ticket = await Ticket.findOne({ ticketId });
 
   if (!ticket) {
@@ -26,15 +26,12 @@ export const validateTicketScan = async (qrToken: string, scannedBy: string) => 
     return { success: false, status: "FAILED_INVALID", message: "Ticket not found in system." };
   }
 
-  // 3. Check if the ticket was explicitly revoked by an admin
   if (ticket.status === "REVOKED") {
     await logAttendance(ticketId, session, scannedBy, "FAILED_REVOKED");
     return { success: false, status: "FAILED_REVOKED", message: "This ticket has been revoked." };
   }
 
-  // 4. ATOMIC CHECK-IN: Prevent duplicate scans
-  // We search for the ticket AND guarantee 'isCheckedIn' is currently false.
-  // If it's already true, this query returns null, stopping the duplicate entry dead in its tracks.
+ 
   const updatedTicket = await Ticket.findOneAndUpdate(
     { ticketId: ticketId, isCheckedIn: false },
     { 
@@ -53,13 +50,12 @@ export const validateTicketScan = async (qrToken: string, scannedBy: string) => 
     return { success: false, status: "FAILED_DUPLICATE", message: "Ticket already used!" };
   }
 
-  // 5. Success! Log the valid entry.
+// valid entry
   await logAttendance(ticketId, session, scannedBy, "SUCCESS");
   return { success: true, status: "SUCCESS", message: "Access Granted!", ticket: updatedTicket };
 };
 
-// Helper function to keep our audit logs clean
-// Helper function to keep our audit logs clean
+
 const logAttendance = async (
   ticketId: string, 
   session: string, 

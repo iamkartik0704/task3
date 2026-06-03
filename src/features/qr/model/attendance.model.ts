@@ -4,7 +4,7 @@ export interface IAttendance extends Document {
   ticketId: string;
   session: string;
   scannedAt: Date;
-  scannedBy: string; // The ID of the volunteer/admin who scanned it
+  scannedBy: string; //  ID of the volunteer/admin who scanned it
   validationStatus: "SUCCESS" | "FAILED_DUPLICATE" | "FAILED_REVOKED" | "FAILED_INVALID";
 }
 

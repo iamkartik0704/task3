@@ -2,7 +2,7 @@ import mongoose, { Document, Schema } from 'mongoose';
 
 export interface ITicket extends Document {
   ticketId: string;
-  userId: string; // Stored as string since the actual User model lives in the main backend
+  userId: string; 
   session: "SESSION_1" | "SESSION_2";
   qrToken: string;
   status: "ACTIVE" | "REVOKED" | "USED";
