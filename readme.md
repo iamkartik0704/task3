@@ -1,112 +1,96 @@
-TEDx Ticket & QR Management System
-Documentation
+# TEDx Ticket & QR Management System
 
-Project Overview
-A high-performance, secure backend system designed for event management, featuring
-role-based access control, real-time ticket validation, and automated QR generation.
+A high-performance, secure backend system designed for event management, featuring Role-Based Access Control (RBAC), real-time ticket validation, and automated QR generation.
 
-Dependencies
-This project relies on the following key dependencies:
+---
 
-express
-mongoose
-dotenv
-cors
-jsonwebtoken
-bcrypt
-cookie-parser
-express-rate-limit
+## Project Overview
 
-Development Dependencies
-typescript
-ts-node
-tsx
-@types/express
-@types/jsonwebtoken
-@types/bcrypt
-@types/cookie-parser
-@types/cors
+This backend provides a secure infrastructure for managing event tickets. It ensures that only authorized administrators can generate tickets or view statistics, while volunteers can efficiently validate QR codes at the gate.
 
+---
 
-RUN COMMANDS
+## Dependencies
 
-Install all dependencies:
+### Production
+
+* express: Web framework.
+* mongoose: MongoDB ODM.
+* dotenv: Environment variable management.
+* cors: Cross-Origin Resource Sharing.
+* jsonwebtoken: Secure JWT session management.
+* bcrypt: Password hashing.
+* cookie-parser: Session cookie parsing.
+* express-rate-limit: Brute-force protection.
+
+### Development
+
+* typescript, ts-node, tsx
+* @types/express, @types/jsonwebtoken, @types/bcrypt, @types/cookie-parser, @types/cors
+
+---
+
+## Setup & Execution
+
+### 1. Installation
+
+```bash
 npm install
 
-Create your .env file
-STRUCTURE OF ENV FILE:
+```
 
-PORT
-MONGO_URI
-JWT_SECRET
-SEED_ADMIN_EMAIL
-SEED_ADMIN_PASSWORD
-SEED_VOLUNTEER_EMAILS
-SEED_VOLUNTEER_PASSWORD
+### 2. Environment Variables
 
-Seed the database:
+Create a .env file in your root directory:
+
+```env
+PORT=5001
+MONGO_URI=your_db_connection_string
+JWT_SECRET=your_secret_key
+FRONTEND_URL=http://localhost:3000
+SEED_ADMIN_EMAIL=admin@tedx.com
+SEED_ADMIN_PASSWORD=your_password
+SEED_VOLUNTEER_EMAILS=gate1@tedx.com,gate2@tedx.com
+SEED_VOLUNTEER_PASSWORD=your_password
+
+```
+
+### 3. Seed & Run
+
+```bash
+# Initialize database with Admin/Volunteer accounts
 npx tsx src/seed.ts
 
-Running the Server:
+# Start the server
 npm run dev
 
+```
 
-API Reference
+---
 
-1. Authentication Endpoints
-These are public routes (no token required).
-POST /api/auth/login
-Payload:
-JSON
-{
-  "email": "admin@tedx.com",
-  "password": "YourSecurePassword"
-}
+## API Reference
 
-POST /api/auth/logout
-Payload:
-JSON
-{
-  "email": "admin@tedx.com",
-  "password": "YourSecurePassword"
-}
+### Authentication (Public)
 
+| Endpoint | Method | Description |
+| --- | --- | --- |
+| /api/auth/login | POST | Authenticates and sets secure cookie |
+| /api/auth/logout | POST | Destroys session |
 
+### QR & Ticket Management (Admin Only)
 
-2. Admin-Only QR Endpoints
-These require an active Admin session (the auth_token cookie).
+| Endpoint | Method | Payload |
+| --- | --- | --- |
+| /api/qr/generate | POST | {"userId": "...", "session": "..."} |
+| /api/qr/admin/ticket/revoke | PATCH | {"ticketId": "..."} |
+| /api/qr/admin/attendance | GET | N/A |
 
-POST /api/qr/generate
+### Validation (Admin & Volunteer)
 
-Payload:
+| Endpoint | Method | Payload |
+| --- | --- | --- |
+| /api/qr/validate | POST | {"qrToken": "...", "currentScanningSession": "..."} |
 
-JSON
-{
-  "userId": "guest_123",
-  "session": "SESSION_1"
-}
+---
 
-PATCH /api/qr/admin/ticket/revoke
-
-Payload:
-
-JSON
-{
-  "ticketId": "TEDXIITP-26-81-0001"
-}
-
-GET /api/qr/admin/attendance
-
-
-3. Validation Endpoint (Admin & Volunteer)
-This requires an active session (any role).
-
-POST /api/qr/validate
-
-Payload:
-
-JSON
-{
-  "qrToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6...",
-  "currentScanningSession": "SESSION_1"
-}
+Built for TEDx events.
