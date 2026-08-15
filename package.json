@@ -6,8 +6,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsx watch src/server.ts",
-    "build": "tsc",
-    "start": "node dist/server.js"
+    "build": "tsc --noEmit",
+    "start": "tsx src/server.ts"
   },
   "keywords": [],
   "author": "",
@@ -21,7 +21,9 @@
     "express-rate-limit": "^8.5.2",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^9.6.3",
-    "qrcode": "^1.5.4"
+    "nodemailer": "^9.0.1",
+    "qrcode": "^1.5.4",
+    "tsx": "^4.22.3"
   },
   "devDependencies": {
     "@types/bcrypt": "^6.0.0",
@@ -30,8 +32,8 @@
     "@types/express": "^5.0.6",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^25.9.1",
+    "@types/nodemailer": "^8.0.1",
     "@types/qrcode": "^1.5.6",
-    "tsx": "^4.22.3",
     "typescript": "^6.0.3"
   }
 }

@@ -30,11 +30,15 @@ export const loginAdmin = async (req: Request, res: Response): Promise<any> => {
       { expiresIn: '12h' }
     );
 
-    // Set HttpOnly Cookie
+    // Set HttpOnly Cookie.
+    // In production the frontend (Vercel) and backend (Render) are on different
+    // sites, so the auth cookie must be SameSite=None + Secure to be sent on
+    // cross-site requests. Locally we stay on 'lax'/insecure so it works on http.
+    const isProd = process.env.NODE_ENV === 'production';
     res.cookie('auth_token', token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', // true on Render, false locally
-      sameSite: 'strict',
+      secure: isProd, // required when sameSite is 'none'
+      sameSite: isProd ? 'none' : 'lax',
       maxAge: 12 * 60 * 60 * 1000 // 12 hours
     });
 
@@ -46,6 +50,13 @@ export const loginAdmin = async (req: Request, res: Response): Promise<any> => {
 };
 
 export const logoutAdmin = (req: Request, res: Response) => {
-  res.clearCookie('auth_token');
+  // Attributes must match the ones used when setting the cookie, otherwise the
+  // browser won't clear a SameSite=None; Secure cookie.
+  const isProd = process.env.NODE_ENV === 'production';
+  res.clearCookie('auth_token', {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: isProd ? 'none' : 'lax',
+  });
   return res.status(200).json({ success: true, message: "Logged out successfully" });
 };
